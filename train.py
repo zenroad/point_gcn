@@ -46,7 +46,7 @@ class Net(torch.nn.Module):
         x = F.relu(x)
         x = F.dropout(x, training=self.training)
         x = self.conv2(x, edge_index)
-
+        print(x.shape)
         return F.log_softmax(x, dim=1)
 
 
@@ -65,7 +65,6 @@ def train(epoch):
     loss_all = 0
     for data in train_loader:
         data = data.to(device)
-        print(data.shape)
         optimizer.zero_grad()
         #output = model(data.x, data.edge_index, data.batch)
         output = model(data)
