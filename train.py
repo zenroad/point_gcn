@@ -64,6 +64,7 @@ def train(epoch):
         data = data.to(device)
         optimizer.zero_grad()
         print(type(data))
+        print(data)
         #output = model(data.x, data.edge_index, data.batch)
         output = model(data)
         print(data.y)
