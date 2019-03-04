@@ -35,7 +35,6 @@ train_loader = DataLoader(train_dataset, batch_size=32)
 class Net(torch.nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        print(train_dataset.num_features)
         self.conv1 = GCNConv(train_dataset.num_features, 16)
         self.conv2 = GCNConv(16, train_dataset.num_classes)
 
@@ -46,7 +45,6 @@ class Net(torch.nn.Module):
         x = F.relu(x)
         x = F.dropout(x, training=self.training)
         x = self.conv2(x, edge_index)
-        print(x.shape)
         return F.log_softmax(x, dim=1)
 
 
@@ -65,6 +63,7 @@ def train(epoch):
     loss_all = 0
     for data in train_loader:
         data = data.to(device)
+        print(data.shape)
         optimizer.zero_grad()
         #output = model(data.x, data.edge_index, data.batch)
         output = model(data)
