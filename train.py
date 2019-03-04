@@ -10,6 +10,7 @@ import torch_geometric.transforms as T
 from torch_geometric.datasets import ModelNet
 from torch_geometric.transforms import SamplePoints
 from torch_geometric.transforms import FaceToEdge
+import torch_geometric
 
 #path = osp.join(osp.dirname(osp.realpath(__file__)), '..', 'data', 'MUTAG')
 #dataset = TUDataset(path, name='MUTAG').shuffle()
