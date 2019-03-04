@@ -67,7 +67,7 @@ def train(epoch):
         optimizer.zero_grad()
         #output = model(data.x, data.edge_index, data.batch)
         output = model(data)
-        loss = F.nll_loss(output, data.y)
+        loss = F.nll_loss(output[data.train_mask], data.y[data.train_mask])
         loss.backward()
         loss_all += loss.item() * data.num_graphs
         optimizer.step()
