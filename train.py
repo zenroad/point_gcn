@@ -12,12 +12,20 @@ from torch_geometric.transforms import SamplePoints
 from torch_geometric.transforms import FaceToEdge
 import torch_geometric
 
+
+
+class MyTransform(object):
+    def __call__(self, data):
+        data.face, data.x = None, torch.ones(data.num_nodes, 1)
+        return data
+
 #path = osp.join(osp.dirname(osp.realpath(__file__)), '..', 'data', 'MUTAG')
 #dataset = TUDataset(path, name='MUTAG').shuffle()
+pre_transform = T.Compose([T.FaceToEdge(), MyTransform()])
 train_dataset = ModelNet(root='/home/code/geo/point_gcn/ModelNet',name='10',train=True, 
-                    pre_transform=torch_geometric.transforms.FaceToEdge)
+                    pre_transform=pre_transform)
 test_dataset = ModelNet(root='/home/code/geo/point_gcn/ModelNet',name='10',train=False, 
-                    pre_transform=torch_geometric.transforms.FaceToEdge)
+                    pre_transform=pre_transform)
 #test_dataset = dataset[:len(dataset) // 10]
 #train_dataset = dataset[len(dataset) // 10:]
 test_loader = DataLoader(test_dataset, batch_size=32)
