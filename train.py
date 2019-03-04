@@ -10,7 +10,9 @@ import torch_geometric.transforms as T
 from torch_geometric.datasets import ModelNet
 from torch_geometric.transforms import SamplePoints
 from torch_geometric.transforms import FaceToEdge
+from torch_geometric.nn import SplineConv
 import torch_geometric
+from torch_geometric.utils import degree
 
 
 
@@ -30,69 +32,65 @@ test_dataset = ModelNet(root='/home/code/geo/point_gcn/ModelNet',name='10',train
 #train_dataset = dataset[len(dataset) // 10:]
 test_loader = DataLoader(test_dataset, batch_size=32)
 train_loader = DataLoader(train_dataset, batch_size=32)
+d = train_dataset[0]
 
 
 class Net(torch.nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        self.conv1 = GCNConv(train_dataset.num_features, 16)
-        self.conv2 = GCNConv(16, train_dataset.num_classes)
+        self.conv1 = SplineConv(1, 32, dim=3, kernel_size=5, norm=False)
+        self.conv2 = SplineConv(32, 64, dim=3, kernel_size=5, norm=False)
+        self.conv3 = SplineConv(64, 64, dim=3, kernel_size=5, norm=False)
+        self.conv4 = SplineConv(64, 64, dim=3, kernel_size=5, norm=False)
+        self.conv5 = SplineConv(64, 64, dim=3, kernel_size=5, norm=False)
+        self.conv6 = SplineConv(64, 64, dim=3, kernel_size=5, norm=False)
+        self.fc1 = torch.nn.Linear(64, 256)
+        self.fc2 = torch.nn.Linear(256, d.num_nodes)
 
     def forward(self, data):
-        x, edge_index = data.x, data.edge_index
-        print(x.shape)
-        x = self.conv1(x, edge_index)
-        x = F.relu(x)
+        x, edge_index, pseudo = data.x, data.edge_index, data.edge_attr
+        x = F.elu(norm(self.conv1(x, edge_index, pseudo), edge_index))
+        x = F.elu(norm(self.conv2(x, edge_index, pseudo), edge_index))
+        x = F.elu(norm(self.conv3(x, edge_index, pseudo), edge_index))
+        x = F.elu(norm(self.conv4(x, edge_index, pseudo), edge_index))
+        x = F.elu(norm(self.conv5(x, edge_index, pseudo), edge_index))
+        x = F.elu(norm(self.conv6(x, edge_index, pseudo), edge_index))
+        x = F.elu(self.fc1(x))
         x = F.dropout(x, training=self.training)
-        x = self.conv2(x, edge_index)
+        x = self.fc2(x)
         return F.log_softmax(x, dim=1)
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = Net().to(device)
+target = torch.arange(d.num_nodes, dtype=torch.long, device=device)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 
 
 def train(epoch):
     model.train()
 
-    if epoch == 51:
+    if epoch == 61:
         for param_group in optimizer.param_groups:
-            param_group['lr'] = 0.5 * param_group['lr']
+            param_group['lr'] = 0.001
 
-    loss_all = 0
     for data in train_loader:
-        data = data.to(device)
-        print(data.shape)
         optimizer.zero_grad()
-        #output = model(data.x, data.edge_index, data.batch)
-        output = model(data)
-        print(output.shape)
-        print(data.y)
-        loss = F.nll_loss(output, data.y)
-        loss.backward()
-        loss_all += loss.item() * data.num_graphs
+        F.nll_loss(model(data.to(device)), target).backward()
         optimizer.step()
-    return loss_all / len(train_dataset)
 
 
-def test(loader):
+def test():
     model.eval()
-
     correct = 0
-    for data in loader:
-        data = data.to(device)
-        output = model(data.x, data.edge_index, data.batch)
-        pred = output.max(dim=1)[1]
-        correct += pred.eq(data.y).sum().item()
-    return correct / len(loader.dataset)
+
+    for data in test_loader:
+        pred = model(data.to(device)).max(1)[1]
+        correct += pred.eq(target).sum().item()
+    return correct / (len(test_dataset) * d.num_nodes)
 
 
 for epoch in range(1, 101):
-    train_loss = train(epoch)
-    train_acc = test(train_loader)
-    test_acc = test(test_loader)
-    print('Epoch: {:03d}, Train Loss: {:.7f}, '
-          'Train Acc: {:.7f}, Test Acc: {:.7f}'.format(epoch, train_loss,
-                                                       train_acc, test_acc))
-
+    train(epoch)
+    test_acc = test()
+    print('Epoch: {:02d}, Test: {:.4f}'.format(epoch, test_acc))
