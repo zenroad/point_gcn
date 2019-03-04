@@ -28,8 +28,8 @@ test_dataset = ModelNet(root='/home/code/geo/point_gcn/ModelNet',name='10',train
                     pre_transform=pre_transform)
 #test_dataset = dataset[:len(dataset) // 10]
 #train_dataset = dataset[len(dataset) // 10:]
-test_loader = DataLoader(test_dataset, batch_size=32)
-train_loader = DataLoader(train_dataset, batch_size=32)
+test_loader = DataLoader(test_dataset, batch_size=1)
+train_loader = DataLoader(train_dataset, batch_size=1)
 
 
 class Net(torch.nn.Module):
