@@ -65,7 +65,8 @@ def train(epoch):
     for data in train_loader:
         data = data.to(device)
         optimizer.zero_grad()
-        output = model(data.x, data.edge_index, data.batch)
+        #output = model(data.x, data.edge_index, data.batch)
+        output = model(data)
         loss = F.nll_loss(output, data.y)
         loss.backward()
         loss_all += loss.item() * data.num_graphs
