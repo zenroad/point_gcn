@@ -21,6 +21,10 @@ class MyTransform(object):
         data.face, data.x = None, torch.ones(data.num_nodes, 1)
         return data
 
+def norm(x, edge_index):
+    deg = degree(edge_index[0], x.size(0), x.dtype, x.device) + 1
+    return x / deg.unsqueeze(-1)
+
 #path = osp.join(osp.dirname(osp.realpath(__file__)), '..', 'data', 'MUTAG')
 #dataset = TUDataset(path, name='MUTAG').shuffle()
 pre_transform = T.Compose([T.FaceToEdge(), MyTransform()])
