@@ -14,9 +14,9 @@ from torch_geometric.transforms import FaceToEdge
 #path = osp.join(osp.dirname(osp.realpath(__file__)), '..', 'data', 'MUTAG')
 #dataset = TUDataset(path, name='MUTAG').shuffle()
 train_dataset = ModelNet(root='/home/code/geo/point_gcn/ModelNet',name='10',train=True, 
-                    pre_transform=FaceToEdge)
+                    pre_transform=torch_geometric.transforms.FaceToEdge)
 test_dataset = ModelNet(root='/home/code/geo/point_gcn/ModelNet',name='10',train=False, 
-                    pre_transform=FaceToEdge)
+                    pre_transform=torch_geometric.transforms.FaceToEdge)
 #test_dataset = dataset[:len(dataset) // 10]
 #train_dataset = dataset[len(dataset) // 10:]
 test_loader = DataLoader(test_dataset, batch_size=32)
