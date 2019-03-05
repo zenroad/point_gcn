@@ -13,7 +13,7 @@ import torch_geometric
 from torch_geometric.utils import to_undirected
 
 
-
+'''
 class MyTransform(object):
     def __call__(self, data):
         #data.face, data.x = None, torch.ones(data.num_nodes, 1)
@@ -44,10 +44,10 @@ class MyTransform(object):
         data.edge_index = edge_index
         data.face = None
         return data
-
+'''
 #path = osp.join(osp.dirname(osp.realpath(__file__)), '..', 'data', 'MUTAG')
 #dataset = TUDataset(path, name='MUTAG').shuffle()
-pre_transform = T.Compose([T.NNGraph(k=6), MyTransform()])
+pre_transform = T.Compose([T.KNNGraph(k=6),T.SamplePoints(1024),T.FaceToEdge()])
 train_dataset = ModelNet(root='/home/code/geo/point_gcn/ModelNet',name='10',train=True, 
                     pre_transform=pre_transform)
 test_dataset = ModelNet(root='/home/code/geo/point_gcn/ModelNet',name='10',train=False, 
