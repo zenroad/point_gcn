@@ -9,7 +9,6 @@ from torch_geometric.nn import GCNConv, global_add_pool
 import torch_geometric.transforms as T
 from torch_geometric.datasets import ModelNet
 from torch_geometric.transforms import SamplePoints
-from torch_geometric.transforms import FaceToEdge
 import torch_geometric
 from torch_geometric.utils import to_undirected
 
@@ -39,7 +38,7 @@ class MyTransform(object):
         pos_sampled += frac[:, 1:] * (pos[face[2]] - pos[face[0]])
 
         data.pos = pos_sampled
-        
+
         edge_index = torch.cat([face[:2], face[1:], face[::2]], dim=1)
         edge_index = to_undirected(edge_index, num_nodes=data.num_nodes)
         data.edge_index = edge_index
@@ -67,6 +66,7 @@ class Net(torch.nn.Module):
 
     def forward(self, data):
         x, edge_index = data.x, data.edge_index
+        print(type(x))
         x = self.conv1(x, edge_index)
         x = F.relu(x)
         x = F.dropout(x, training=self.training)
