@@ -68,7 +68,7 @@ train_loader = DataLoader(train_dataset, batch_size=1)
 class Net(torch.nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        self.conv1 = GCNConv(train_dataset.num_features, 16)
+        self.conv1 = GCNConv(1, 16)
         self.conv2 = GCNConv(16, train_dataset.num_classes)
 
     def forward(self, data):
