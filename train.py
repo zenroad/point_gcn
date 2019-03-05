@@ -47,11 +47,11 @@ class MyTransform(object):
 '''
 #path = osp.join(osp.dirname(osp.realpath(__file__)), '..', 'data', 'MUTAG')
 #dataset = TUDataset(path, name='MUTAG').shuffle()
-pre_transform = T.Compose([T.FaceToEdge(),T.KNNGraph(k=6),T.SamplePoints(1024)])
+pre_transform = T.Compose([T.FaceToEdge(),T.KNNGraph(k=6)])
 train_dataset = ModelNet(root='/home/code/geo/point_gcn/ModelNet',name='10',train=True, 
-                    pre_transform=pre_transform)
+                    pre_transform=pre_transform,transform=T.SamplePoints(1024))
 test_dataset = ModelNet(root='/home/code/geo/point_gcn/ModelNet',name='10',train=False, 
-                    pre_transform=pre_transform)
+                    pre_transform=pre_transform,transform=T.SamplePoints(1024))
 #test_dataset = dataset[:len(dataset) // 10]
 #train_dataset = dataset[len(dataset) // 10:]
 test_loader = DataLoader(test_dataset, batch_size=1)
